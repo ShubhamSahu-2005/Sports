@@ -18,7 +18,7 @@ function unsubscribe(matchId, socket) {
         matchSubscribers.delete(matchId)
     }
 }
-function cleanupSubsriptions(socket) {
+function cleanupSubscriptions(socket) {
     for (const matchId of socket.subscriptions) {
         unsubscribe(matchId, socket);
     }
@@ -43,6 +43,7 @@ function handleMessage(socket, data) {
 
     } catch {
         sendJson(socket, { type: 'error', data: { message: 'Invalid message' } })
+        return;
     }
     if (message?.type === 'subscribe' && Number.isInteger(message.matchId)) {
         subscribe(message.matchId, socket);
@@ -114,7 +115,7 @@ export function attachWebSocketServer(server) {
         });
 
         socket.on('close', () => {
-            cleanupSubsriptions(socket);
+            cleanupSubscriptions(socket);
         })
     });
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "../db/db.js";
-import { commentary } from "../db/schema.js";
+import { commentary, matches } from "../db/schema.js";
 import { createCommentarySchema, listCommentaryQuerySchema } from "../validation/commentary.js";
 import { matchIdParamSchema } from "../validation/matches.js";
 import { z } from "zod";
@@ -11,6 +11,13 @@ export const commentaryRouter = Router({ mergeParams: true });
 commentaryRouter.post("/", async (req, res) => {
     try {
         const { id } = matchIdParamSchema.parse(req.params);
+
+        const [matchExists] = await db.select().from(matches).where(eq(matches.id, id)).limit(1);
+
+        if (!matchExists) {
+            return res.status(404).json({ error: "Match not found" });
+        }
+
         const body = createCommentarySchema.parse(req.body);
 
         const [result] = await db.insert(commentary).values({

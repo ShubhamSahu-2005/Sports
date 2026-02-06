@@ -19,7 +19,9 @@ app.use(express.json());
 
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-        console.error("JSON Syntax Error. Raw body received:", err.body); // Debug log
+        if (process.env.NODE_ENV === 'development') {
+            console.error("JSON Syntax Error. Raw body received:", err.body); // Debug log
+        }
         return res.status(400).json({ error: 'Invalid JSON payload' });
     }
     next();

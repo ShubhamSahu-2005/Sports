@@ -9,7 +9,13 @@ ws.on('open', () => {
 });
 
 ws.on('message', (data) => {
-    const message = JSON.parse(data.toString());
+    let message;
+    try {
+        message = JSON.parse(data.toString());
+    } catch (error) {
+        console.error('Failed to parse WS message:', data.toString(), error.message);
+        return;
+    }
     console.log('Received message:', message);
 
     if (message.type === 'match_created') {
