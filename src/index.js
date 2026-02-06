@@ -7,7 +7,10 @@ import { securityMiddleware } from "./arcjet.js";
 
 
 const app = express();
-const PORT = Number(process.env.PORT || 8000);
+const rawPort = process.env.PORT;
+const parsedPort = Number(rawPort);
+const isPortValid = Number.isFinite(parsedPort) && Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535;
+const PORT = isPortValid ? parsedPort : 8000;
 const HOST = process.env.HOST || '0.0.0.0';
 const server = http.createServer(app);
 
