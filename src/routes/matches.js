@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createMatchSchema, listMatchesQuerySchema } from "../validation/matches.js";
-import { parseEWKB } from "drizzle-orm/pg-core/columns/postgis_extension/utils";
+
 import { getMatchStatus } from "../utils/match-status.js";
 import { db } from "../db/db.js";
 import { matches } from "../db/schema.js";
@@ -22,8 +22,10 @@ matchRouter.get('/', async (req, res) => {
         res.status(200).json({ data });
 
     } catch (error) {
+        console.error("Error listing matches:", error);
         res.status(500).json({
-            error: "Failed to list matches"
+            error: "Failed to list matches",
+            details: error.message
         })
 
     }
@@ -59,6 +61,9 @@ matchRouter.post('/', async (req, res) => {
             status: getMatchStatus(startTime, endTime),
 
         }).returning();
+        if (req.app.locals.broadcastMatchCreated) {
+            req.app.locals.broadcastMatchCreated(event);
+        }
         res.status(201).json({
             data: event
         })
