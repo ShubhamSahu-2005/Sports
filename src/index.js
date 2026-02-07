@@ -1,3 +1,5 @@
+import AgentAPI from 'apminsight';
+AgentAPI.config();
 import 'dotenv/config';
 import express from "express";
 import http from "http"
@@ -35,9 +37,10 @@ app.get("/", (req, res) => {
 app.use('/matches', matchRouter);
 app.use('/matches/:id/commentary', commentaryRouter)
 
-const { broadcastMatchCreated, broadcastCommentary } = attachWebSocketServer(server);
+const { broadcastMatchCreated, broadcastCommentary, broadcastMatchScoreUpdated } = attachWebSocketServer(server);
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
 app.locals.broadcastCommentary = broadcastCommentary
+app.locals.broadcastMatchScoreUpdated = broadcastMatchScoreUpdated;
 
 
 
