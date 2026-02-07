@@ -132,6 +132,10 @@ export function attachWebSocketServer(server) {
         broadcastToMatch(matchId, { type: 'commentary', data: commentary })
     }
 
+    function broadcastMatchScoreUpdated(matchId, scoreUpdate) {
+        broadcastToMatch(matchId, { type: 'score_update', data: { matchId, ...scoreUpdate } })
+    }
 
-    return { broadcastMatchCreated, broadcastCommentary }
+
+    return { broadcastMatchCreated, broadcastCommentary, broadcastMatchScoreUpdated }
 }

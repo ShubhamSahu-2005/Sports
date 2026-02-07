@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { createMatchSchema, listMatchesQuerySchema } from "../validation/matches.js";
+import { createMatchSchema, listMatchesQuerySchema, updateScoreSchema, matchIdParamSchema } from "../validation/matches.js";
 
 import { getMatchStatus } from "../utils/match-status.js";
 import { db } from "../db/db.js";
 import { matches } from "../db/schema.js";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 export const matchRouter = Router();
 const MAX_LIMIT = 100;
@@ -74,4 +74,36 @@ matchRouter.post('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to create a match' })
     }
 
+})
+
+matchRouter.patch('/:id/score', async (req, res) => {
+    const { id } = matchIdParamSchema.parse(req.params);
+    const parsed = updateScoreSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+        return res.status(400).json({
+            error: 'Invalid Payload', details: JSON.stringify(parsed.error)
+        })
+    }
+
+    try {
+        const [updatedMatch] = await db.update(matches)
+            .set(parsed.data)
+            .where(eq(matches.id, id))
+            .returning();
+
+        if (!updatedMatch) {
+            return res.status(404).json({ error: 'Match not found' });
+        }
+
+        if (req.app.locals.broadcastMatchScoreUpdated) {
+            req.app.locals.broadcastMatchScoreUpdated(id, parsed.data);
+        }
+
+        res.status(200).json({ data: updatedMatch });
+
+    } catch (error) {
+        console.error("Error updating match score:", error);
+        res.status(500).json({ error: "Failed to update match score" });
+    }
 })
