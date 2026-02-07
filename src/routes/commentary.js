@@ -10,7 +10,13 @@ export const commentaryRouter = Router({ mergeParams: true });
 
 commentaryRouter.post("/", async (req, res) => {
     try {
-        const { id } = matchIdParamSchema.parse(req.params);
+        const parsedParams = matchIdParamSchema.safeParse(req.params);
+        if (!parsedParams.success) {
+            return res.status(400).json({
+                error: 'Invalid Params', details: JSON.stringify(parsedParams.error)
+            });
+        }
+        const { id } = parsedParams.data;
 
         const [matchExists] = await db.select().from(matches).where(eq(matches.id, id)).limit(1);
 
@@ -41,7 +47,13 @@ commentaryRouter.post("/", async (req, res) => {
 
 commentaryRouter.get("/", async (req, res) => {
     try {
-        const { id } = matchIdParamSchema.parse(req.params);
+        const parsedParams = matchIdParamSchema.safeParse(req.params);
+        if (!parsedParams.success) {
+            return res.status(400).json({
+                error: 'Invalid Params', details: JSON.stringify(parsedParams.error)
+            });
+        }
+        const { id } = parsedParams.data;
         const query = listCommentaryQuerySchema.parse(req.query);
 
         const limit = Math.min(query.limit ?? 50, 100);

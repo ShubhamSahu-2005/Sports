@@ -77,7 +77,13 @@ matchRouter.post('/', async (req, res) => {
 })
 
 matchRouter.patch('/:id/score', async (req, res) => {
-    const { id } = matchIdParamSchema.parse(req.params);
+    const parsedParams = matchIdParamSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+        return res.status(400).json({
+            error: 'Invalid Params', details: JSON.stringify(parsedParams.error)
+        });
+    }
+    const { id } = parsedParams.data;
     const parsed = updateScoreSchema.safeParse(req.body);
 
     if (!parsed.success) {
