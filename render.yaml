@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: sportz-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: ARCJET_KEY
+        sync: false
+      - key: ARCJET_ENV
+        value: production
+      - key: PORT
+        value: "8000"
+      - key: HOST
+        value: "0.0.0.0"

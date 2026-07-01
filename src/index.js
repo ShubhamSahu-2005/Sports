@@ -3,6 +3,7 @@ AgentAPI.config();
 import 'dotenv/config';
 import express from "express";
 import http from "http"
+import cors from "cors";
 import { matchRouter } from "./routes/matches.js";
 import { attachWebSocketServer } from "./ws/server.js";
 import { securityMiddleware } from "./arcjet.js";
@@ -17,6 +18,7 @@ const PORT = isPortValid ? parsedPort : 8000;
 const HOST = process.env.HOST || '0.0.0.0';
 const server = http.createServer(app);
 
+app.use(cors());
 app.use(express.json());
 
 app.use((err, req, res, next) => {
